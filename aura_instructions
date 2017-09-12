@@ -1,0 +1,110 @@
+INSTRUCTIONS:
+
+Terminal 1:
+docker-compose -f docker-compose-simple.yaml up
+
+Term 2:
+docker exec -it chaincode bash
+CORE_PEER_ADDRESS=peer:7051 CORE_CHAINCODE_ID_NAME=aura:1 ./sacc
+
+Term 3:
+docker exec -it cli bash
+peer chaincode install -p chaincodedev/chaincode/sacc -n aura -v 1
+
+peer chaincode invoke -n aura -c '{"Args":["createLoan","{smb}","{lender}","{loan}","{covenant}"] }' -C myc
+
+SMB
+{
+	"user_details": {
+		"participant_type": "SMB",
+		"federal_id": "123-45-1234",
+		"business_name": "Business A",
+		"mailing_address": "1234 Address Ln, California",
+		"contact_name": "John Doe",
+		"email": "businessA@example.com"
+	},
+	"value1": "value1",
+	"value1_type": "type1",
+	"value2": "value2",
+	"value2_type": "type2",
+	"value3": "value3",
+	"value3_type": "type3",
+	"currency": "USD",
+	"schedule": "Weekly",
+	"schedule_begin_day": "today",
+	"schedule_end_day": "tomorrow",
+	"smb_api_trigger_url1": "http://url.com",
+	"smb_api_trigger_url2": "http://url.com/2",
+	"total_credit_receipts": "123.45",
+	"receipts_begin_day": "234.45",
+	"receipts_end_day": "56.34",
+	"approval_1_name": "John Smith",
+	"approval_1_role": "Boss",
+	"approval_2_name": "Jogn Mithz",
+	"approval_2_role": "Chief",
+	"approval_3_name": "Jojn Thims",
+	"approval_3_role": "Leader"
+}
+
+Lender
+{
+	"user_details": {
+		"participant_type": "Lender",
+		"federal_id": "22-22-222",
+		"business_name": "Lender A",
+		"mailing_address": "1234 Address Ln, California",
+		"contact_name": "Jim Doe",
+		"email": "lenderA@example.com"
+	},
+	"lender_api_trigger_url1": "http://url.com",
+	"lender_api_trigger_url2": "http://url.com/2",
+	"lender_api_trigger_url1": "http://url.com",
+	"lender_api_trigger_url2": "http://url.com/2",
+	"lender_api_trigger_url1": "http://url.com",
+	"lender_api_trigger_url2": "http://url.com/2"
+}
+
+Loan
+{
+	
+}
+
+
+
+API_CALL_Lender_On_Board_MCA_Smart_Contract
+Creates Loan
+	IN: account details
+	OUT: success/fail
+
+API_CALL_Lender_Get_MCA_Smart_Contract
+Get Loan, for lenders
+	IN:	smb_federal_ein
+		smb_business_name
+		lender_federal_ein
+		lender_license_number
+		loan_id
+		loan_type
+
+	OUT: JSON (all loan details)
+
+API_CALL_SMB_Get_MCA_Smart_Contract
+Get Loan, for SMB
+	IN:	smb_federal_ein
+		smb_business_name
+		lender_federal_ein
+		lender_license_number
+		loan_id
+		loan_type
+	OUT: JSON (all loan details)
+
+API_CALL_SMB_Post_GL_MCA_Smart_Contract
+Update general ledger for loan
+	IN: as above, +
+		GeneralLedger data
+
+	do calculations
+
+	OUT: Success/fail
+
+API_CALL_Lender_Post_Credit_Receipts_MCA_Smart_Contract
+Update credit receipts for loan
