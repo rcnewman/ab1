@@ -6,6 +6,7 @@ import (
 "fmt"
 "time"
 "encoding/json"
+"strconv"
 "github.com/hyperledger/fabric/core/chaincode/shim"
 "github.com/hyperledger/fabric/protos/peer"
 )
@@ -23,14 +24,14 @@ type SMB struct {
 	ContactName string `json:"smb_contact_name"`
 	Email string `json:"smb_email"`
 	Phone string `json:"smb_phone"`
-	
+
 	CashFlows float64 `json:"smb_cash_flows_from_gl"`
 	DebtEquityRatio float64 `json:"smb_debt_to_equity_ratio"`
 	WorkingCapital float64 `json:"smb_working_capital"`
 	Currency string `json:"smb_currency"`
 	GLSchedule string `json:"smb_gl_schedule"`
-	GLScheduleBeginDay Time `json:"smb_gl_schedule_begin_day"`
-	GLScheduleEndDay Time `json:"smb_gl_schedule_end_day"`
+	GLScheduleBeginDay time.Time `json:"smb_gl_schedule_begin_day"`
+	GLScheduleEndDay time.Time `json:"smb_gl_schedule_end_day"`
 
 	SMBApiTriggerUrl1 string `json:"smb_api_trigger_api_url1"`
 	SMBApiTriggerUrl2 string `json:"smb_api_trigger_api_url2"`
@@ -47,8 +48,8 @@ type SMB struct {
 
 	NetCreditReceipts float64 `json:"smb_net_credit_receipts"`
 	ReceiptsSchedule string `json:"smb_receipts_schedule"`
-	ReceiptsBeginDay Time `json:"smb_receipts_begin_day"`
-	ReceiptsEndDay Time `json:"smb_receipts_end_day"`
+	ReceiptsBeginDay time.Time `json:"smb_receipts_begin_day"`
+	ReceiptsEndDay time.Time `json:"smb_receipts_end_day"`
 
 	ProjAvgMonRevenue float64 `json:"smb_proj_avg_mon_revenue"`
 	ProjAvgMonCCReceipts float64 `json:"smb_proj_avg_mon_cc_receipts"`
@@ -94,7 +95,7 @@ type Loan struct {
 	CumuAvgExpMonPayment float64 `json:"loan_cumu_avg_exp_mon_payment"`
 	MonPayProjAvgMonRevenue float64 `json:"loan_mon_pay_proj_avg_mon_revenue"`
 	EstimatedAPR float64 `json:"loan_est_apr_based_on_est_payments"`
-	FundedDate Time `json:"loan_funded_date"`
+	FundedDate time.Time `json:"loan_funded_date"`
 	RealAPR float64 `json:"loan_real_apr_based_on_payments_made"`
 	CCSplitPayment float64 `json:"loan_cc_split_payment"`
 	CumuCCSplitpayment float64 `json:"loan_cumu_cc_split_payment"`
@@ -153,36 +154,54 @@ func (t *AuraBlock) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 
 func (t *AuraBlock) onboardLoan(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 	fmt.Println("- starting onboardLoan")
-	fmt.Println("- starting onboardLoan")
 	var smbJSON SMB
 	var lenderJSON Lender
-	var loanJSON Loan
-	var covenantJSON Covenant
+	var loanJSON map[string]string
+	var loanObj Loan
 	var err error
 
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3 arguments.")
+	}
 	err = json.Unmarshal([]byte(args[0]), &smbJSON)
 	if err != nil {
-		return shim.Error("Failed to decode JSON of smb: " + args[0])
+		return shim.Error("Failed to decode JSON of smb: " + err.Error())
 	}
 	fmt.Println("DEBUG: generated SMB %+v", smbJSON)
 
+
 	err = json.Unmarshal([]byte(args[1]), &lenderJSON)
 	if err != nil {
-		return shim.Error("Failed to decode JSON of lender: " + args[1])
+		return shim.Error("Failed to decode JSON of lender: " + err.Error())
 	}
 	fmt.Println("DEBUG: generated lender %+v", lenderJSON)
 
 	err = json.Unmarshal([]byte(args[2]), &loanJSON)
 	if err != nil {
-		return shim.Error("Failed to decode JSON of loan: " + args[2])
+		return shim.Error("Failed to decode JSON of loan: " + err.Error())
 	}
 	fmt.Println("DEBUG: generated loan %+v", loanJSON)
 
-	err = json.Unmarshal([]byte(args[3]), &covenantJSON)
-	if err != nil {
-		return shim.Error("Failed to decode JSON of covenant: " + args[3])
-	}
-	fmt.Println("DEBUG: generated covenant %+v", covenantJSON)
+
+	loanObj.LoanId = loanJSON["loan_id"]
+        loanObj.Type = loanJSON["loan_type"]
+        loanObj.TotalLoanedAmount, err = strconv.ParseFloat(loanJSON["loan_total_loaned_amount"], 64)
+	if err != nil { return shim.Error("Failed to parsefloat totalLoanedAmount: " + loanJSON["loan_total_loaned_amount"])}
+
+	var tempCCSplit float64
+	tempCCSplit, err = strconv.ParseFloat(loanJSON["loan_cc_split"], 64)
+	if err != nil { return shim.Error("Failed to parsefloat loan cc split: " + loanJSON["loan_cc_split"])}
+        loanObj.AvgExpMonPayment = smbJSON.ProjAvgMonCCReceipts * tempCCSplit
+
+        loanObj.MonPayProjAvgMonRevenue = loanObj.AvgExpMonPayment / smbJSON.ProjAvgMonRevenue
+        loanObj.RepaymentFreq = loanJSON["loan_repayment_freq"]
+        loanObj.FundedDate, err = time.Parse("2006-01-02T15:04:05.000Z", loanJSON["loan_funded_date"])
+	if err != nil { return shim.Error("Failed to parse date of loanfunded date: " + loanJSON["loan_funded_date"])}
+
+        loanObj.CCSplitSurchargePercentage, err = strconv.ParseFloat(loanJSON["loan_cc_split_surcharge_percentage"], 64)
+	if err != nil { return shim.Error("Failed to parsefloat loan cc split surcharge percentage: " + loanJSON["loan_cc_split_surcharge_percentage"])}
+        loanObj.TerminateThreshold,err = strconv.ParseFloat(loanJSON["loan_termination_threshold"], 64)
+	if err != nil { return shim.Error("Failed to parsefloat loan termination threshold " + loanJSON["loan_termination_threshold"])}
 
 
 	fmt.Println("- end onboardLoan")
