@@ -29,8 +29,8 @@ type SMB struct {
 	WorkingCapital float64 `json:"smb_working_capital"`
 	Currency string `json:"smb_currency"`
 	GLSchedule string `json:"smb_gl_schedule"`
-	GLScheduleBeginDay Time `json:"smb_gl_schedule_begin_day"`
-	GLScheduleEndDay Time `json:"smb_gl_schedule_end_day"`
+	GLScheduleBeginDay time.Time `json:"smb_gl_schedule_begin_day"`
+	GLScheduleEndDay time.Time `json:"smb_gl_schedule_end_day"`
 
 	SMBApiTriggerUrl1 string `json:"smb_api_trigger_api_url1"`
 	SMBApiTriggerUrl2 string `json:"smb_api_trigger_api_url2"`
@@ -47,8 +47,8 @@ type SMB struct {
 
 	NetCreditReceipts float64 `json:"smb_net_credit_receipts"`
 	ReceiptsSchedule string `json:"smb_receipts_schedule"`
-	ReceiptsBeginDay Time `json:"smb_receipts_begin_day"`
-	ReceiptsEndDay Time `json:"smb_receipts_end_day"`
+	ReceiptsBeginDay time.Time `json:"smb_receipts_begin_day"`
+	ReceiptsEndDay time.Time `json:"smb_receipts_end_day"`
 
 	ProjAvgMonRevenue float64 `json:"smb_proj_avg_mon_revenue"`
 	ProjAvgMonCCReceipts float64 `json:"smb_proj_avg_mon_cc_receipts"`
@@ -94,7 +94,7 @@ type Loan struct {
 	CumuAvgExpMonPayment float64 `json:"loan_cumu_avg_exp_mon_payment"`
 	MonPayProjAvgMonRevenue float64 `json:"loan_mon_pay_proj_avg_mon_revenue"`
 	EstimatedAPR float64 `json:"loan_est_apr_based_on_est_payments"`
-	FundedDate Time `json:"loan_funded_date"`
+	FundedDate time.Time `json:"loan_funded_date"`
 	RealAPR float64 `json:"loan_real_apr_based_on_payments_made"`
 	CCSplitPayment float64 `json:"loan_cc_split_payment"`
 	CumuCCSplitpayment float64 `json:"loan_cumu_cc_split_payment"`
@@ -112,6 +112,9 @@ type Loan struct {
 	OnTrackPaymentCount int64 `json:"loan_on_track_payment_count"`
 	TriggerInterestRateReview string `json:"loan_trigger_interest_rate_review"`
 	Active bool `json:"loan_active"`
+}
+
+type Covenant struct {
 }
 
 // ##################
