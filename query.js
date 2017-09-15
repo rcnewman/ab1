@@ -53,7 +53,6 @@ var loan = {
 }
 
 body.request.args = [json_escape(smb), json_escape(lender), json_escape(loan)];
-console.log(JSON.stringify(body));
 var options = {
     method: 'POST',
     uri: url,
