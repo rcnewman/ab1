@@ -1,3 +1,4 @@
+
 INSTRUCTIONS:
 
 Terminal 1:
@@ -5,69 +6,25 @@ docker-compose -f docker-compose-simple.yaml up
 
 Term 2:
 docker exec -it chaincode bash
-CORE_PEER_ADDRESS=peer:7051 CORE_CHAINCODE_ID_NAME=aura:1 ./sacc
+CORE_PEER_ADDRESS=peer:7051 CORE_CHAINCODE_ID_NAME=aura:0 ./sacc
 
 Term 3:
 docker exec -it cli bash
-peer chaincode install -p chaincodedev/chaincode/sacc -n aura -v 1
+peer chaincode install -p chaincodedev/chaincode/sacc -n aura -v 0
 
-peer chaincode invoke -n aura -c '{"Args":["createLoan","{smb}","{lender}","{loan}","{covenant}"] }' -C myc
+peer chaincode instantiate -n aura -C myc -v 0 -c '{"Args": []}'
+peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["onboardLoan","{smb}","{lender}","{loan}"] }' 
+
+OR 
+
+peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["onboardLoan","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\",\"smb_mailing_address\":\"Address 1\",\"smb_contact_name\":\"Bob Ross\",\"smb_email\":\"email@example.com\",\"smb_phone\":\"2345353\",\"smb_proj_avg_mon_revenue\":1200.02,\"smb_proj_avg_mon_cc_receipts\":40949.32}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\",\"lender_business_name\":\"EGGGGZ\",\"lender_mailing_address\":\"This is a street\",\"lender_contact_name\":\"Jim\",\"lender_email\":\"jim@egggz.com\",\"lender_phone\":\"349494904\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\",\"loan_total_loaned_amount\":\"10.30\",\"loan_term\":\"An amount of itme\",\"loan_repayment_freq\":\"Whenever\",\"loan_cc_split\":\"10.00\",\"loan_cc_split_surcharge_percentage\":\"10.00\",\"loan_funded_date\":\"2015-09-15T12:00:00.000Z\",\"loan_termination_threshold\":\"1\"}"] }'
 
 SMB
-{
-	"user_details": {
-		"participant_type": "SMB",
-		"federal_id": "123-45-1234",
-		"business_name": "Business A",
-		"mailing_address": "1234 Address Ln, California",
-		"contact_name": "John Doe",
-		"email": "businessA@example.com"
-	},
-	"value1": "value1",
-	"value1_type": "type1",
-	"value2": "value2",
-	"value2_type": "type2",
-	"value3": "value3",
-	"value3_type": "type3",
-	"currency": "USD",
-	"schedule": "Weekly",
-	"schedule_begin_day": "today",
-	"schedule_end_day": "tomorrow",
-	"smb_api_trigger_url1": "http://url.com",
-	"smb_api_trigger_url2": "http://url.com/2",
-	"total_credit_receipts": "123.45",
-	"receipts_begin_day": "234.45",
-	"receipts_end_day": "56.34",
-	"approval_1_name": "John Smith",
-	"approval_1_role": "Boss",
-	"approval_2_name": "Jogn Mithz",
-	"approval_2_role": "Chief",
-	"approval_3_name": "Jojn Thims",
-	"approval_3_role": "Leader"
-}
+{"smb_federal_ein":"12345-10","smb_business_name":"Business A","smb_mailing_address":"Address 1","smb_contact_name":"Bob Ross","smb_email":"email@example.com","smb_phone":"2345353","smb_proj_avg_mon_revenue":"1200.02","smb_proj_avg_mon_cc_receipts":"40949.32"}
 
-Lender
-{
-	"user_details": {
-		"participant_type": "Lender",
-		"federal_id": "22-22-222",
-		"business_name": "Lender A",
-		"mailing_address": "1234 Address Ln, California",
-		"contact_name": "Jim Doe",
-		"email": "lenderA@example.com"
-	},
-	"lender_api_trigger_url1": "http://url.com",
-	"lender_api_trigger_url2": "http://url.com/2",
-	"lender_api_trigger_url1": "http://url.com",
-	"lender_api_trigger_url2": "http://url.com/2",
-	"lender_api_trigger_url1": "http://url.com",
-	"lender_api_trigger_url2": "http://url.com/2"
-}
+{"lender_federal_ein":"4865854-10",	"lender_license_number":"4848-0912","lender_business_name":"EGGGGZ","lender_mailing_address":"This is a street","lender_contact_name":"Jim","lender_email":"jim@egggz.com","lender_phone":"349494904"}
 
-Loan
-{
-	
-}
+{"loan_id":"11111","loan_type":"Big one","loan_total_loaned_amount":"10.30","loan_term":"An amount of itme","loan_repayment_freq":"Whenever","loan_cc_split":"10.00","loan_cc_split_surcharge_percentage":"10.00","loan_funded_date":"2015-09-15T12:00:00.000Z","loan_termination_threshold":"1"}
 
 
 
@@ -108,3 +65,4 @@ Update general ledger for loan
 
 API_CALL_Lender_Post_Credit_Receipts_MCA_Smart_Contract
 Update credit receipts for loan
+

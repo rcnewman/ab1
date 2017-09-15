@@ -115,6 +115,11 @@ type Loan struct {
 	Active bool `json:"loan_active"`
 }
 
+type Transaction struct {
+	TxLoan Loan
+	TxSMB SMB
+	TxLender Lender
+}
 // ##################
 //       INIT
 // ##################
@@ -203,7 +208,19 @@ func (t *AuraBlock) onboardLoan(stub shim.ChaincodeStubInterface, args []string)
         loanObj.TerminateThreshold,err = strconv.ParseFloat(loanJSON["loan_termination_threshold"], 64)
 	if err != nil { return shim.Error("Failed to parsefloat loan termination threshold " + loanJSON["loan_termination_threshold"])}
 
+	var tx Transaction
+	tx.TxSMB = smbJSON
+	tx.TxLender = lenderJSON
+	tx.TxLoan = loanObj
 
+	key, err := stub.CreateCompositeKey("txKey", []string{smbJSON.FederalEIN, smbJSON.BusinessName, lenderJSON.FederalEIN, lenderJSON.LicenseNumber, loanObj.LoanId, loanObj.Type})
+
+	if err != nil { return shim.Error(err.Error())}
+
+	txAsBytes, err := json.Marshal(tx)
+	if err != nil { return shim.Error(err.Error())}
+
+	stub.PutState(key, txAsBytes)
 	fmt.Println("- end onboardLoan")
 	return shim.Success(nil)
 }
