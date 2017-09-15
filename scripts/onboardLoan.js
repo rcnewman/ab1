@@ -1,9 +1,6 @@
 var rp = require('request-promise');
 
-function json_escape(obj) {
-	return JSON.stringify(obj);
-}
-
+// In the URL, `mca` is the name of the chaincode, and `smbblockorderer` is the name of the channel
 var url = "http://129.158.70.201:8889/api/v1/chaincodes/mca/channels/smbblockorderer/invoke";
 var body = {
     "request": {
@@ -41,7 +38,7 @@ var lender = {
 	"lender_phone": "349494904"
 }
 var loan = {
-	"loan_id": "11111",
+	"loan_id": "22222",
 	"loan_type": "Big one",
 	"loan_total_loaned_amount": "10.30",
 	"loan_term": "An amount of itme",
@@ -52,7 +49,7 @@ var loan = {
 	"loan_termination_threshold": "1"
 }
 
-body.request.args = [json_escape(smb), json_escape(lender), json_escape(loan)];
+body.request.args = [JSON.stringify(smb), JSON.stringify(lender), JSON.stringify(loan)];
 var options = {
     method: 'POST',
     uri: url,
