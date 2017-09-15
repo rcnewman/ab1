@@ -228,16 +228,105 @@ func (t *AuraBlock) onboardLoan(stub shim.ChaincodeStubInterface, args []string)
 
 func (t *AuraBlock) getLoanSMB(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 	fmt.Println("- starting getLoanSMB")
+	var smbQuery SMB
+	var lenderQuery Lender
+	var loanQuery Loan
+	var err error
+	if len(args) != 3 {
+		return shim.Error("Incorrect number of arguments. Expecting 3 arguments.")
+	}
+
+	err = json.Unmarshal([]byte(args[0]), &smbQuery)
+	if err != nil {	return shim.Error("Failed to decode JSON of smb: " + err.Error())}
+	fmt.Println("DEBUG: generated SMB %+v", smbQuery)
+
+
+	err = json.Unmarshal([]byte(args[1]), &lenderQuery)
+	if err != nil {	return shim.Error("Failed to decode JSON of lender: " + err.Error())}
+	fmt.Println("DEBUG: generated lender %+v", lenderQuery)
+
+	err = json.Unmarshal([]byte(args[2]), &loanQuery)
+	if err != nil {	return shim.Error("Failed to decode JSON of loan: " + err.Error())}
+	fmt.Println("DEBUG: generated loan %+v", loanQuery)
+
+	key, err := stub.CreateCompositeKey("txKey", []string{smbQuery.FederalEIN, smbQuery.BusinessName, lenderQuery.FederalEIN, lenderQuery.LicenseNumber, loanQuery.LoanId, loanQuery.Type})
+	if err != nil { return shim.Error(err.Error())}
+
+	txBytes, err  := stub.GetState(key)
+	if err != nil {
+		return shim.Error("Failed to get tx: " + err.Error())
+	} else if txBytes == nil {
+		return shim.Error("Tx does not exist. ")
+	}
+
+	var tx Transaction
+	err = json.Unmarshal(txBytes, &tx)
+	if err != nil { return shim.Error(err.Error()) }
+
+	// Remove unwantedf fields for SMB
+	tx.TxLender.LenderApiTriggerUrl1 = ""
+	tx.TxLender.LenderApiTriggerUrl2 = "" 
+	tx.TxLoan.AvgExpMonPayment = 0
+	tx.TxLoan.CumuAvgExpMonPayment = 0
+	tx.TxLoan.MonPayProjAvgMonRevenue = 0
+	tx.TxLoan.EstimatedAPR = 0
+	tx.TxLoan.RealAPR = 0
+	tx.TxLoan.CCSplitPayment = 0
+	tx.TxLoan.CumuCCSplitpayment = 0
+	tx.TxLoan.CumuRepaymentPercentage = 0
+	tx.TxLoan.LoanPerformance = ""
+	tx.TxLoan.SplitPercentageCurMonPayment = 0
+	tx.TxLoan.FedRateAtLoanOrigination = 0
+	tx.TxLoan.FedCurrentRate = 0
+	tx.TxLoan.TerminateThreshold = 0
+	tx.TxLoan.TerminationCount = 0
+	tx.TxLoan.OnTrackPaymentCount = 0
+	tx.TxLoan.TriggerInterestRateReview = ""
+	tx.TxLoan.Active = false
+
+
+	txBytesOut, err := json.Marshal(tx)
+	if err != nil { return shim.Error(err.Error())}
 
 	fmt.Println("- end getLoanSMB")
-	return shim.Success(nil)
+	return shim.Success(txBytesOut)
 }
 
 func (t *AuraBlock) getLoanLender(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 	fmt.Println("- starting getLoanLender")
+        var smbQuery SMB
+        var lenderQuery Lender
+        var loanQuery Loan
+        var err error
+        if len(args) != 3 {
+                return shim.Error("Incorrect number of arguments. Expecting 3 arguments.")
+        }
+
+        err = json.Unmarshal([]byte(args[0]), &smbQuery)
+        if err != nil { return shim.Error("Failed to decode JSON of smb: " + err.Error())}
+        fmt.Println("DEBUG: generated SMB %+v", smbQuery)
+
+
+        err = json.Unmarshal([]byte(args[1]), &lenderQuery)
+        if err != nil { return shim.Error("Failed to decode JSON of lender: " + err.Error())}
+        fmt.Println("DEBUG: generated lender %+v", lenderQuery)
+
+        err = json.Unmarshal([]byte(args[2]), &loanQuery)
+        if err != nil { return shim.Error("Failed to decode JSON of loan: " + err.Error())}
+        fmt.Println("DEBUG: generated loan %+v", loanQuery)
+
+        key, err := stub.CreateCompositeKey("txKey", []string{smbQuery.FederalEIN, smbQuery.BusinessName, lenderQuery.FederalEIN, lenderQuery.LicenseNumber, loanQuery.LoanId, loanQuery.Type})
+        if err != nil { return shim.Error(err.Error())}
+
+        txBytes, err  := stub.GetState(key)
+        if err != nil {
+                return shim.Error("Failed to get tx: " + err.Error())
+        } else if txBytes == nil {
+                return shim.Error("Tx does not exist. ")
+        }
 
 	fmt.Println("- end getLoanLender")
-	return shim.Success(nil)
+	return shim.Success(txBytes)
 }
 
 func (t *AuraBlock) updateCreditReceipts(stub shim.ChaincodeStubInterface, args []string) peer.Response {
