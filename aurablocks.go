@@ -6,9 +6,9 @@ import (
 "fmt"
 "time"
 "encoding/json"
-"strconv"
 "github.com/hyperledger/fabric/core/chaincode/shim"
 "github.com/hyperledger/fabric/protos/peer"
+"errors"
 )
 // #########################
 //    Type Definitions
@@ -25,9 +25,9 @@ type SMB struct {
 	Email string `json:"smb_email"`
 	Phone string `json:"smb_phone"`
 
-	CashFlows float64 `json:"smb_cash_flows_from_gl"`
-	DebtEquityRatio float64 `json:"smb_debt_to_equity_ratio"`
-	WorkingCapital float64 `json:"smb_working_capital"`
+	CashFlows float64 `json:"smb_cash_flows_from_gl,string"`
+	DebtEquityRatio float64 `json:"smb_debt_to_equity_ratio,string"`
+	WorkingCapital float64 `json:"smb_working_capital,string"`
 	Currency string `json:"smb_currency"`
 	GLSchedule string `json:"smb_gl_schedule"`
 	GLScheduleBeginDay time.Time `json:"smb_gl_schedule_begin_day"`
@@ -46,15 +46,15 @@ type SMB struct {
 	Approval3Role string `json:"smb_approval_3_role"`
 	Approval3Email string `json:"smb_approval_3_email"`
 
-	NetCreditReceipts float64 `json:"smb_net_credit_receipts"`
+	NetCreditReceipts float64 `json:"smb_net_credit_receipts,string"`
 	ReceiptsSchedule string `json:"smb_receipts_schedule"`
 	ReceiptsBeginDay time.Time `json:"smb_receipts_begin_day"`
 	ReceiptsEndDay time.Time `json:"smb_receipts_end_day"`
 
-	ProjAvgMonRevenue float64 `json:"smb_proj_avg_mon_revenue"`
-	ProjAvgMonCCReceipts float64 `json:"smb_proj_avg_mon_cc_receipts"`
-	CumuCashFlows float64 `json:"smb_cumu_cash_flows_from_gl"`
-	CumuNetCreditReceipts float64 `json:"smb_cumu_net_credit_receipts"`
+	ProjAvgMonRevenue float64 `json:"smb_proj_avg_mon_revenue,string"`
+	ProjAvgMonCCReceipts float64 `json:"smb_proj_avg_mon_cc_receipts,string"`
+	CumuCashFlows float64 `json:"smb_cumu_cash_flows_from_gl,string"`
+	CumuNetCreditReceipts float64 `json:"smb_cumu_net_credit_receipts,string"`
 }
 
 type Lender struct {
@@ -86,31 +86,31 @@ type Auditor struct {
 type Loan struct {
 	LoanId string `json:"loan_id"`
 	Type string `json:"loan_type"`
-	TotalLoanedAmount float64 `json:"loan_total_loaned_amount"`
+	TotalLoanedAmount float64 `json:"loan_total_loaned_amount,string"`
 	Term string `json:"loan_term"`
 	RepaymentFreq string `json:"loan_repayment_freq"`
-	CCSplitPercentage float64 `json:"loan_cc_split_percentage"`
-	CCSplitSurchargePercentage float64 `json:"loan_cc_split_surcharge_percentage"`
-	AvgExpMonPayment float64 `json:"loan_avg_exp_mon_payment"`
+	CCSplitPercentage float64 `json:"loan_cc_split_percentage,string"`
+	CCSplitSurchargePercentage float64 `json:"loan_cc_split_surcharge_percentage,string"`
+	AvgExpMonPayment float64 `json:"loan_avg_exp_mon_payment,string"`
 	CumuAvgExpMonPayment float64 `json:"loan_cumu_avg_exp_mon_payment"`
-	MonPayProjAvgMonRevenue float64 `json:"loan_mon_pay_proj_avg_mon_revenue"`
-	EstimatedAPR float64 `json:"loan_est_apr_based_on_est_payments"`
+	MonPayProjAvgMonRevenue float64 `json:"loan_mon_pay_proj_avg_mon_revenue,string"`
+	EstimatedAPR float64 `json:"loan_est_apr_based_on_est_payments,string"`
 	FundedDate time.Time `json:"loan_funded_date"`
-	RealAPR float64 `json:"loan_real_apr_based_on_payments_made"`
-	CCSplitPayment float64 `json:"loan_cc_split_payment"`
-	CumuCCSplitpayment float64 `json:"loan_cumu_cc_split_payment"`
+	RealAPR float64 `json:"loan_real_apr_based_on_payments_made,string"`
+	CCSplitPayment float64 `json:"loan_cc_split_payment,string"`
+	CumuCCSplitPayment float64 `json:"loan_cumu_cc_split_payment,string"`
 
-	ActualPayment float64 `json:"loan_actual_payment"`
-	CumuActualPayment float64 `json:"loan_cumu_actual_payment"`
-	CumuRepaymentPercentage float64 `json:"loan_cumu_repayment_percentage"`
+	ActualPayment float64 `json:"loan_actual_payment,string"`
+	CumuActualPayment float64 `json:"loan_cumu_actual_payment,string"`
+	CumuRepaymentPercentage float64 `json:"loan_cumu_repayment_percentage,string"`
 
 	LoanPerformance string `json:"loan_performance"`
-	SplitPercentageCurMonPayment float64 `json:"loan_split_percent_cur_mon_payment"`
-	FedRateAtLoanOrigination float64 `json:"loan_fed_rate_at_loan_origination"`
-	FedCurrentRate float64 `json:"loan_fed_current_rate"`
-	TerminateThreshold float64 `json:"loan_termination_threshold`
-	TerminationCount int64 `json:"loan_termination_count"`
-	OnTrackPaymentCount int64 `json:"loan_on_track_payment_count"`
+	SplitPercentageCurMonPayment float64 `json:"loan_split_percent_cur_mon_payment,string"`
+	FedRateAtLoanOrigination float64 `json:"loan_fed_rate_at_loan_origination,string"`
+	FedCurrentRate float64 `json:"loan_fed_current_rate,string"`
+	TerminateThreshold float64 `json:"loan_termination_threshold,string"`
+	TerminationCount int64 `json:"loan_termination_count,string"`
+	OnTrackPaymentCount int64 `json:"loan_on_track_payment_count,string"`
 	TriggerInterestRateReview string `json:"loan_trigger_interest_rate_review"`
 	Active bool `json:"loan_active"`
 }
@@ -161,60 +161,23 @@ func (t *AuraBlock) onboardLoan(stub shim.ChaincodeStubInterface, args []string)
 	fmt.Println("- starting onboardLoan")
 	var smbJSON SMB
 	var lenderJSON Lender
-	var loanJSON map[string]string
-	var loanObj Loan
+	var loanJSON Loan
 	var err error
 
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 3 arguments.")
-	}
-	err = json.Unmarshal([]byte(args[0]), &smbJSON)
-	if err != nil {
-		return shim.Error("Failed to decode JSON of smb: " + err.Error())
-	}
-	fmt.Println("DEBUG: generated SMB %+v", smbJSON)
+	err = marshallRequest(args, &smbJSON, &lenderJSON, &loanJSON)
+	if err != nil { return shim.Error("Failed to marshall request" + err.Error())}
 
 
-	err = json.Unmarshal([]byte(args[1]), &lenderJSON)
-	if err != nil {
-		return shim.Error("Failed to decode JSON of lender: " + err.Error())
-	}
-	fmt.Println("DEBUG: generated lender %+v", lenderJSON)
+        loanJSON.AvgExpMonPayment = smbJSON.ProjAvgMonCCReceipts * loanJSON.CCSplitPercentage
+        loanJSON.MonPayProjAvgMonRevenue = loanJSON.AvgExpMonPayment / smbJSON.ProjAvgMonRevenue
 
-	err = json.Unmarshal([]byte(args[2]), &loanJSON)
-	if err != nil {
-		return shim.Error("Failed to decode JSON of loan: " + err.Error())
-	}
-	fmt.Println("DEBUG: generated loan %+v", loanJSON)
-
-
-	loanObj.LoanId = loanJSON["loan_id"]
-        loanObj.Type = loanJSON["loan_type"]
-        loanObj.TotalLoanedAmount, err = strconv.ParseFloat(loanJSON["loan_total_loaned_amount"], 64)
-	if err != nil { return shim.Error("Failed to parsefloat totalLoanedAmount: " + loanJSON["loan_total_loaned_amount"])}
-
-	var tempCCSplit float64
-	tempCCSplit, err = strconv.ParseFloat(loanJSON["loan_cc_split"], 64)
-	if err != nil { return shim.Error("Failed to parsefloat loan cc split: " + loanJSON["loan_cc_split"])}
-        loanObj.AvgExpMonPayment = smbJSON.ProjAvgMonCCReceipts * tempCCSplit
-
-        loanObj.MonPayProjAvgMonRevenue = loanObj.AvgExpMonPayment / smbJSON.ProjAvgMonRevenue
-        loanObj.RepaymentFreq = loanJSON["loan_repayment_freq"]
-        loanObj.FundedDate, err = time.Parse("2006-01-02T15:04:05.000Z", loanJSON["loan_funded_date"])
-	if err != nil { return shim.Error("Failed to parse date of loanfunded date: " + loanJSON["loan_funded_date"])}
-
-        loanObj.CCSplitSurchargePercentage, err = strconv.ParseFloat(loanJSON["loan_cc_split_surcharge_percentage"], 64)
-	if err != nil { return shim.Error("Failed to parsefloat loan cc split surcharge percentage: " + loanJSON["loan_cc_split_surcharge_percentage"])}
-        loanObj.TerminateThreshold,err = strconv.ParseFloat(loanJSON["loan_termination_threshold"], 64)
-	if err != nil { return shim.Error("Failed to parsefloat loan termination threshold " + loanJSON["loan_termination_threshold"])}
 
 	var tx Transaction
 	tx.TxSMB = smbJSON
 	tx.TxLender = lenderJSON
-	tx.TxLoan = loanObj
+	tx.TxLoan = loanJSON
 
-	key, err := stub.CreateCompositeKey("txKey", []string{smbJSON.FederalEIN, smbJSON.BusinessName, lenderJSON.FederalEIN, lenderJSON.LicenseNumber, loanObj.LoanId, loanObj.Type})
-
+	key, err := stub.CreateCompositeKey("txKey", []string{smbJSON.FederalEIN, smbJSON.BusinessName, lenderJSON.FederalEIN, lenderJSON.LicenseNumber, loanJSON.LoanId, loanJSON.Type})
 	if err != nil { return shim.Error(err.Error())}
 
 	txAsBytes, err := json.Marshal(tx)
@@ -232,22 +195,9 @@ func (t *AuraBlock) getLoanSMB(stub shim.ChaincodeStubInterface, args []string) 
 	var lenderQuery Lender
 	var loanQuery Loan
 	var err error
-	if len(args) != 3 {
-		return shim.Error("Incorrect number of arguments. Expecting 3 arguments.")
-	}
 
-	err = json.Unmarshal([]byte(args[0]), &smbQuery)
-	if err != nil {	return shim.Error("Failed to decode JSON of smb: " + err.Error())}
-	fmt.Println("DEBUG: generated SMB %+v", smbQuery)
-
-
-	err = json.Unmarshal([]byte(args[1]), &lenderQuery)
-	if err != nil {	return shim.Error("Failed to decode JSON of lender: " + err.Error())}
-	fmt.Println("DEBUG: generated lender %+v", lenderQuery)
-
-	err = json.Unmarshal([]byte(args[2]), &loanQuery)
-	if err != nil {	return shim.Error("Failed to decode JSON of loan: " + err.Error())}
-	fmt.Println("DEBUG: generated loan %+v", loanQuery)
+	err = marshallRequest(args, &smbQuery, &lenderQuery, &loanQuery)
+        if err != nil { return shim.Error("Failed to marshall request: " + err.Error())}
 
 	key, err := stub.CreateCompositeKey("txKey", []string{smbQuery.FederalEIN, smbQuery.BusinessName, lenderQuery.FederalEIN, lenderQuery.LicenseNumber, loanQuery.LoanId, loanQuery.Type})
 	if err != nil { return shim.Error(err.Error())}
@@ -272,7 +222,7 @@ func (t *AuraBlock) getLoanSMB(stub shim.ChaincodeStubInterface, args []string) 
 	tx.TxLoan.EstimatedAPR = 0
 	tx.TxLoan.RealAPR = 0
 	tx.TxLoan.CCSplitPayment = 0
-	tx.TxLoan.CumuCCSplitpayment = 0
+	tx.TxLoan.CumuCCSplitPayment = 0
 	tx.TxLoan.CumuRepaymentPercentage = 0
 	tx.TxLoan.LoanPerformance = ""
 	tx.TxLoan.SplitPercentageCurMonPayment = 0
@@ -298,22 +248,9 @@ func (t *AuraBlock) getLoanLender(stub shim.ChaincodeStubInterface, args []strin
         var lenderQuery Lender
         var loanQuery Loan
         var err error
-        if len(args) != 3 {
-                return shim.Error("Incorrect number of arguments. Expecting 3 arguments.")
-        }
 
-        err = json.Unmarshal([]byte(args[0]), &smbQuery)
-        if err != nil { return shim.Error("Failed to decode JSON of smb: " + err.Error())}
-        fmt.Println("DEBUG: generated SMB %+v", smbQuery)
-
-
-        err = json.Unmarshal([]byte(args[1]), &lenderQuery)
-        if err != nil { return shim.Error("Failed to decode JSON of lender: " + err.Error())}
-        fmt.Println("DEBUG: generated lender %+v", lenderQuery)
-
-        err = json.Unmarshal([]byte(args[2]), &loanQuery)
-        if err != nil { return shim.Error("Failed to decode JSON of loan: " + err.Error())}
-        fmt.Println("DEBUG: generated loan %+v", loanQuery)
+	err = marshallRequest(args, &smbQuery, &lenderQuery, &loanQuery)
+        if err != nil { return shim.Error("Failed to marshall request: " + err.Error())}
 
         key, err := stub.CreateCompositeKey("txKey", []string{smbQuery.FederalEIN, smbQuery.BusinessName, lenderQuery.FederalEIN, lenderQuery.LicenseNumber, loanQuery.LoanId, loanQuery.Type})
         if err != nil { return shim.Error(err.Error())}
@@ -329,6 +266,7 @@ func (t *AuraBlock) getLoanLender(stub shim.ChaincodeStubInterface, args []strin
 	return shim.Success(txBytes)
 }
 
+
 func (t *AuraBlock) updateCreditReceipts(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 	fmt.Println("- starting updateCreditReceipts")
 
@@ -339,9 +277,94 @@ func (t *AuraBlock) updateCreditReceipts(stub shim.ChaincodeStubInterface, args 
 func (t *AuraBlock) updateGeneralLedger(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 	fmt.Println("- starting updateGeneralLedger")
 
+	var smbQuery SMB
+        var lenderQuery Lender
+        var loanQuery Loan
+        var err error
+
+	err = marshallRequest(args, &smbQuery, &lenderQuery, &loanQuery)
+        if err != nil { return shim.Error("Failed to marshall request: " + err.Error())}
+
+	key, err := stub.CreateCompositeKey("txKey", []string{smbQuery.FederalEIN, smbQuery.BusinessName, lenderQuery.FederalEIN, lenderQuery.LicenseNumber, loanQuery.LoanId, loanQuery.Type})
+        if err != nil { return shim.Error(err.Error())}
+
+        txBytes, err  := stub.GetState(key)
+        if err != nil { return shim.Error(err.Error())}
+
+	tx := Transaction{}
+	err = json.Unmarshal(txBytes, &tx)
+	if err != nil { return shim.Error(err.Error()) }
+
+	tx.TxSMB.CashFlows = smbQuery.CashFlows
+	tx.TxSMB.DebtEquityRatio = smbQuery.DebtEquityRatio
+	tx.TxSMB.WorkingCapital = smbQuery.WorkingCapital
+	tx.TxSMB.Currency = smbQuery.Currency
+	tx.TxSMB.GLSchedule = smbQuery.GLSchedule
+	tx.TxSMB.GLScheduleBeginDay = smbQuery.GLScheduleBeginDay
+	tx.TxSMB.GLScheduleEndDay = smbQuery.GLScheduleEndDay 
+
+	tx.TxSMB.Approval1Name = smbQuery.Approval1Name
+	tx.TxSMB.Approval1Role = smbQuery.Approval1Role
+	tx.TxSMB.Approval1Email = smbQuery.Approval1Email
+	tx.TxSMB.Approval2Name = smbQuery.Approval2Name
+	tx.TxSMB.Approval2Role = smbQuery.Approval2Role
+	tx.TxSMB.Approval2Email = smbQuery.Approval2Email
+	tx.TxSMB.Approval3Name = smbQuery.Approval3Name
+	tx.TxSMB.Approval3Role = smbQuery.Approval3Role
+	tx.TxSMB.Approval3Email = smbQuery.Approval3Email
+
+	tx.TxLoan.CumuAvgExpMonPayment = tx.TxLoan.CumuAvgExpMonPayment + tx.TxLoan.AvgExpMonPayment
+	tx.TxLoan.CCSplitPayment = tx.TxSMB.NetCreditReceipts * tx.TxLoan.CCSplitPercentage
+	tx.TxSMB.CumuCashFlows = tx.TxSMB.CumuCashFlows + smbQuery.CashFlows
+
+	tx.TxLoan.CumuCCSplitPayment = tx.TxLoan.CumuCCSplitPayment + tx.TxLoan.CCSplitPayment
+	tx.TxLoan.ActualPayment = tx.TxLoan.CCSplitPayment
+	tx.TxLoan.CumuActualPayment = tx.TxLoan.CumuActualPayment + tx.TxLoan.CCSplitPayment
+
+	tx.TxLoan.LoanPerformance = "Good"
+	tx.TxLoan.OnTrackPaymentCount = tx.TxLoan.OnTrackPaymentCount + 1
+
+	if (((tx.TxLoan.CumuActualPayment / tx.TxSMB.CumuCashFlows ) * 100) < 12){
+		tx.TxLoan.ActualPayment = tx.TxLoan.ActualPayment + (tx.TxSMB.NetCreditReceipts * tx.TxLoan.CCSplitSurchargePercentage)
+		tx.TxLoan.CumuActualPayment = tx.TxLoan.CumuActualPayment + tx.TxLoan.ActualPayment
+		tx.TxLoan.LoanPerformance = "Surcharge"
+		tx.TxLoan.SplitPercentageCurMonPayment = tx.TxLoan.CCSplitPercentage + tx.TxLoan.CCSplitSurchargePercentage
+		tx.TxLoan.OnTrackPaymentCount = 0
+	}
+
+	txAsBytes, err := json.Marshal(tx)
+	if err != nil { return shim.Error(err.Error())}
+
+	stub.PutState(key, txAsBytes)
 	fmt.Println("- end updateGeneralLedger")
 	return shim.Success(nil)
 }
+
+// ================
+// UTILS
+// ===============
+func marshallRequest(args []string, smb *SMB, lender *Lender, loan *Loan) error {
+	var err error
+	if len(args) != 3 {
+                return errors.New("Incorrect number of arguments, expecting 3")
+        }
+
+	err = json.Unmarshal([]byte(args[0]), &smb)
+	if err != nil {	return err }
+	fmt.Println("DEBUG: generated SMB %+v", smb)
+
+
+	err = json.Unmarshal([]byte(args[1]), &lender)
+	if err != nil {	return err }
+	fmt.Println("DEBUG: generated lender %+v", lender)
+
+	err = json.Unmarshal([]byte(args[2]), &loan)
+	if err != nil {	return err }
+	fmt.Println("DEBUG: generated loan %+v", loan)
+
+	return nil
+}
+
 // ================
 // MAIN
 // ================
