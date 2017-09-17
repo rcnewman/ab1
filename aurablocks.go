@@ -29,7 +29,7 @@ type SMB struct {
 	DebtEquityRatio float64 `json:"smb_debt_to_equity_ratio,string"`
 	WorkingCapital float64 `json:"smb_working_capital,string"`
 	Currency string `json:"smb_currency"`
-	GLSchedule string `json:"smb_gl_schedule"`
+	GLSchedule time.Time `json:"smb_gl_schedule"`
 	GLScheduleBeginDay time.Time `json:"smb_gl_schedule_begin_day"`
 	GLScheduleEndDay time.Time `json:"smb_gl_schedule_end_day"`
 
@@ -47,7 +47,7 @@ type SMB struct {
 	Approval3Email string `json:"smb_approval_3_email"`
 
 	NetCreditReceipts float64 `json:"smb_net_credit_receipts,string"`
-	ReceiptsSchedule string `json:"smb_receipts_schedule"`
+	ReceiptsSchedule time.Time `json:"smb_receipts_schedule"`
 	ReceiptsBeginDay time.Time `json:"smb_receipts_begin_day"`
 	ReceiptsEndDay time.Time `json:"smb_receipts_end_day"`
 
@@ -360,10 +360,9 @@ func (t *AuraBlock) updateGeneralLedger(stub shim.ChaincodeStubInterface, args [
 // ===============
 
 func core(smbQuery *SMB, lenderQuery *Lender, loanQuery *Loan, tx *Transaction) {
-	if (smbQuery.GLScheduleBeginDay == tx.txSMB.ReceiptsSchedule)
-	{
-		tx.txSMB.ReceiptsBeginDay = smbQuery.GLScheduleBeginDay
-		tx.txSMB.ReceiptsEndDay = smbQuery.GLScheduleEndDay
+	if (smbQuery.GLScheduleBeginDay == tx.TxSMB.ReceiptsSchedule){
+		tx.TxSMB.ReceiptsBeginDay = smbQuery.GLScheduleBeginDay
+		tx.TxSMB.ReceiptsEndDay = smbQuery.GLScheduleEndDay
 	}
 
 	tx.TxLoan.CumuAvgExpMonPayment = tx.TxLoan.CumuAvgExpMonPayment + tx.TxLoan.AvgExpMonPayment
