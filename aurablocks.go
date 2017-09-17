@@ -313,6 +313,27 @@ func (t *AuraBlock) updateGeneralLedger(stub shim.ChaincodeStubInterface, args [
 	tx.TxSMB.Approval3Role = smbQuery.Approval3Role
 	tx.TxSMB.Approval3Email = smbQuery.Approval3Email
 
+	core(&smbQuery, &lenderQuery, &loanQuery, &tx)
+
+	txAsBytes, err := json.Marshal(tx)
+	if err != nil { return shim.Error(err.Error())}
+
+	stub.PutState(key, txAsBytes)
+	fmt.Println("- end updateGeneralLedger")
+	return shim.Success(nil)
+}
+
+// ================
+// UTILS
+// ===============
+
+func core(smbQuery *SMB, lenderQuery *Lender, loanQuery *Loan, tx *Transaction) {
+	if (smbQuery.GLScheduleBeginDay == tx.txSMB.ReceiptsSchedule)
+	{
+		tx.txSMB.ReceiptsBeginDay = smbQuery.GLScheduleBeginDay
+		tx.txSMB.ReceiptsEndDay = smbQuery.GLScheduleEndDay
+	}
+
 	tx.TxLoan.CumuAvgExpMonPayment = tx.TxLoan.CumuAvgExpMonPayment + tx.TxLoan.AvgExpMonPayment
 	tx.TxLoan.CCSplitPayment = tx.TxSMB.NetCreditReceipts * tx.TxLoan.CCSplitPercentage
 	tx.TxSMB.CumuCashFlows = tx.TxSMB.CumuCashFlows + smbQuery.CashFlows
@@ -331,18 +352,8 @@ func (t *AuraBlock) updateGeneralLedger(stub shim.ChaincodeStubInterface, args [
 		tx.TxLoan.SplitPercentageCurMonPayment = tx.TxLoan.CCSplitPercentage + tx.TxLoan.CCSplitSurchargePercentage
 		tx.TxLoan.OnTrackPaymentCount = 0
 	}
-
-	txAsBytes, err := json.Marshal(tx)
-	if err != nil { return shim.Error(err.Error())}
-
-	stub.PutState(key, txAsBytes)
-	fmt.Println("- end updateGeneralLedger")
-	return shim.Success(nil)
 }
 
-// ================
-// UTILS
-// ===============
 func marshallRequest(args []string, smb *SMB, lender *Lender, loan *Loan) error {
 	var err error
 	if len(args) != 3 {
