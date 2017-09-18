@@ -16,3 +16,7 @@ seed data.
 
 If you would like to test individual functions, use the scripts provided for
 each function. For example, to test the onboardLoan function, `node onboardLoan.js`
+
+## Logs
+
+Testing logs can be found in the `test.log` file
