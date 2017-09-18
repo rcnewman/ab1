@@ -4,7 +4,7 @@
 
 To run the test script:
    
-1. A default test_seed.csv file is provided. If you want to use your own 
+1. A default `test_seed.csv` file is provided. If you want to use your own 
 custom test seeds, replace this file with a file of the same name with your
 seed data.
 
@@ -19,4 +19,8 @@ each function. For example, to test the onboardLoan function, `node onboardLoan.
 
 ## Logs
 
-Testing logs can be found in the `test.log` file
+Full testing logs can be found in the `test.log` file. 
+
+If you are looking for just the returned query data from the blockchain to compare
+against your seed data, the query info is logged to `loaninfo.csv` in CSV format. 
+Compare it side by side against `test_seed.csv` to quickly validate the tests. 

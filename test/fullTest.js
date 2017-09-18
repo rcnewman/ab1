@@ -13,17 +13,17 @@ var lines = csv.split('\n')
                .map(l => l.split(','));
 lines.pop(); // get rid of empty line
 
-var keys = lines.shift().map(key => key.trim());
+var header_keys = lines.shift().map(key => key.trim());
 
 var rows = []
 for (i in lines) {
     var row = {}
-    for (j in keys) {
+    for (j in header_keys) {
         var value = lines[i][j];
         if (value && value.includes('/'))
             value = modifyDate(value);
         if (value && value != 'na')
-            row[keys[j]] = value;
+            row[header_keys[j]] = value;
     }
     rows.push(row);
 }
@@ -82,15 +82,44 @@ function processRow (row) {
         body: body,
         json: true
     };
+    logRequest(url, body);
     rp.post(options).then(function (response) {
-        logEvent(response);
-        console.log(response);
+        logResponse(response);
+
+        // Just for the getLoanLender calls, log the info to a CSV
+        if (response.result) {
+            var tx = JSON.parse(response.result);
+            logLoanData(tx);
+        }
     });
 }
 
-function logEvent(event) {
+function logRequest(url, body) {
+    var body = JSON.stringify(body);
+    var timestamp = new Date();
+    var line = `${timestamp} Request\nPOST ${url}\n${body}\n-------\n`;
+    console.log(line);
+    fs.appendFileSync('test.log', line);
+}
+
+function logResponse(event) {
     var timestamp = new Date();
     var event = JSON.stringify(event);
-    var line = `${timestamp}: ${event}\n`;
+    var line = `${timestamp} Response\n ${event}\n-------\n`;
+    console.log(line);
     fs.appendFileSync('test.log', line);
+}
+
+function logLoanData(tx) {
+    var data = Object.assign({}, tx.TxSMB, tx.TxLender, tx.txLoan);
+    var keys = header_keys; // pulled from global context
+    var rowData = keys.map(key => data[key])
+    var row = rowData.join(',') + '\n';
+    if (fs.existsSync('loaninfo.csv'))
+        fs.appendFileSync('loaninfo.csv', row);
+    else {
+        var headerRow = keys.join(',') + '\n';
+        var lines = headerRow + row;
+        fs.appendFileSync('loaninfo.csv', lines);
+    }
 }
