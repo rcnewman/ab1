@@ -1,21 +1,12 @@
 var rp = require('request-promise');
 
-// In the URL, `mca` is the name of the chaincode, and `smbblockorderer` is the name of the channel
-var url = "http://129.158.70.201:8889/api/v1/chaincodes/mca/channels/smbblockorderer/invoke";
+var url = "http://129.158.64.209:8901/bcsgw/rest/v1/transaction/query"
 var body = {
-    "request": {
-        chaincodeVersion: "v1",
-        fcn: "getLoanSMB",
-        args: []
-    },
-	orderer: {
-		Addr: "orderer.smbblock.com",
-		Port: "7050"
-	},
-	"peers": [
-		{"Addr":"peer0.smbblock.com","Port":"7051"},
-		{"Addr":"peer1.smbblock.com","Port":"7051"}
-	]
+	"channel": "test",
+	"chaincode": "loan",
+	"chaincodeVer": "v1",
+	"method": "getLoanLender",
+	"args": []
 }
 
 var smb = {
@@ -31,7 +22,7 @@ var loan = {
 	"loan_type": "Big one",
 }
 
-body.request.args = [JSON.stringify(smb), JSON.stringify(lender), JSON.stringify(loan)];
+body.args = [JSON.stringify(smb), JSON.stringify(lender), JSON.stringify(loan)];
 var options = {
     method: 'POST',
     uri: url,
@@ -39,6 +30,5 @@ var options = {
     json: true
 };
 rp.post(options).then(response => {
-    var loan = JSON.parse(response.metadata);
-    console.log(loan);
+    console.log(response.result);
 });
