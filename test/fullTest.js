@@ -112,7 +112,7 @@ function logResponse(event) {
 
 function logLoanData(tx) {
     var data = Object.assign({}, tx.TxSMB, tx.TxLender, tx.txLoan);
-    var keys = header_keys; // pulled from global context
+    var keys = Object.keys(data);
     var rowData = keys.map(key => data[key])
     var row = rowData.join(',') + '\n';
     if (fs.existsSync('loaninfo.csv'))

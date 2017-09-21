@@ -24,3 +24,7 @@ Full testing logs can be found in the `test.log` file.
 If you are looking for just the returned query data from the blockchain to compare
 against your seed data, the query info is logged to `loaninfo.csv` in CSV format. 
 Compare it side by side against `test_seed.csv` to quickly validate the tests. 
+
+By default, `fullTest.js` will append to the `loaninfo.csv` file and preserve old 
+tests. To clear the data, delete the existing `loaninfo.csv`  file before running 
+the test.
