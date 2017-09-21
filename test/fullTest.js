@@ -111,7 +111,7 @@ function logResponse(event) {
 }
 
 function logLoanData(tx) {
-    var data = Object.assign({}, tx.TxSMB, tx.TxLender, tx.txLoan);
+    var data = Object.assign({}, tx.TxSMB, tx.TxLender, tx.TxLoan);
     var keys = Object.keys(data);
     var rowData = keys.map(key => data[key])
     var row = rowData.join(',') + '\n';
