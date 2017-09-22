@@ -360,28 +360,26 @@ func (t *AuraBlock) updateGeneralLedger(stub shim.ChaincodeStubInterface, args [
 // ===============
 
 func core(smbQuery *SMB, lenderQuery *Lender, loanQuery *Loan, tx *Transaction) {
-	if (smbQuery.GLScheduleBeginDay == tx.TxSMB.ReceiptsSchedule){
-		tx.TxSMB.ReceiptsBeginDay = smbQuery.GLScheduleBeginDay
-		tx.TxSMB.ReceiptsEndDay = smbQuery.GLScheduleEndDay
-	}
+	if (smbQuery.GLScheduleBeginDay == tx.TxSMB.ReceiptsSchedule && tx.TxSMB.ReceiptsBeginDay == smbQuery.GLScheduleBeginDay && tx.TxSMB.ReceiptsEndDay = smbQuery.GLScheduleEndDay) {	
 
-	tx.TxLoan.CumuAvgExpMonPayment = tx.TxLoan.CumuAvgExpMonPayment + tx.TxLoan.AvgExpMonPayment
-	tx.TxLoan.CCSplitPayment = tx.TxSMB.NetCreditReceipts * tx.TxLoan.CCSplitPercentage
-	tx.TxSMB.CumuCashFlows = tx.TxSMB.CumuCashFlows + smbQuery.CashFlows
+		tx.TxLoan.CumuAvgExpMonPayment = tx.TxLoan.CumuAvgExpMonPayment + tx.TxLoan.AvgExpMonPayment
+		tx.TxLoan.CCSplitPayment = tx.TxSMB.NetCreditReceipts * tx.TxLoan.CCSplitPercentage
+		tx.TxSMB.CumuCashFlows = tx.TxSMB.CumuCashFlows + smbQuery.CashFlows
 
-	tx.TxLoan.CumuCCSplitPayment = tx.TxLoan.CumuCCSplitPayment + tx.TxLoan.CCSplitPayment
-	tx.TxLoan.ActualPayment = tx.TxLoan.CCSplitPayment
-	tx.TxLoan.CumuActualPayment = tx.TxLoan.CumuActualPayment + tx.TxLoan.CCSplitPayment
+		tx.TxLoan.CumuCCSplitPayment = tx.TxLoan.CumuCCSplitPayment + tx.TxLoan.CCSplitPayment
+		tx.TxLoan.ActualPayment = tx.TxLoan.CCSplitPayment
+		tx.TxLoan.CumuActualPayment = tx.TxLoan.CumuActualPayment + tx.TxLoan.CCSplitPayment
 
-	tx.TxLoan.LoanPerformance = "Good"
-	tx.TxLoan.OnTrackPaymentCount = tx.TxLoan.OnTrackPaymentCount + 1
+		tx.TxLoan.LoanPerformance = "Good"
+		tx.TxLoan.OnTrackPaymentCount = tx.TxLoan.OnTrackPaymentCount + 1
 
-	if (((tx.TxLoan.CumuActualPayment / tx.TxSMB.CumuCashFlows ) * 100) < 12){
-		tx.TxLoan.ActualPayment = tx.TxLoan.ActualPayment + (tx.TxSMB.NetCreditReceipts * tx.TxLoan.CCSplitSurchargePercentage)
-		tx.TxLoan.CumuActualPayment = tx.TxLoan.CumuActualPayment + tx.TxLoan.ActualPayment
-		tx.TxLoan.LoanPerformance = "Surcharge"
-		tx.TxLoan.SplitPercentageCurMonPayment = tx.TxLoan.CCSplitPercentage + tx.TxLoan.CCSplitSurchargePercentage
-		tx.TxLoan.OnTrackPaymentCount = 0
+		if (((tx.TxLoan.CumuActualPayment / tx.TxSMB.CumuCashFlows ) * 100) < 12){
+			tx.TxLoan.ActualPayment = tx.TxLoan.ActualPayment + (tx.TxSMB.NetCreditReceipts * tx.TxLoan.CCSplitSurchargePercentage)
+			tx.TxLoan.CumuActualPayment = tx.TxLoan.CumuActualPayment + tx.TxLoan.ActualPayment
+			tx.TxLoan.LoanPerformance = "Surcharge"
+			tx.TxLoan.SplitPercentageCurMonPayment = tx.TxLoan.CCSplitPercentage + tx.TxLoan.CCSplitSurchargePercentage
+			tx.TxLoan.OnTrackPaymentCount = 0
+		}
 	}
 }
 
