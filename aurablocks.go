@@ -361,7 +361,7 @@ func (t *AuraBlock) updateGeneralLedger(stub shim.ChaincodeStubInterface, args [
 // ===============
 
 func core(smbQuery *SMB, lenderQuery *Lender, loanQuery *Loan, tx *Transaction) {
-	if (smbQuery.GLScheduleBeginDay.Equal(tx.TxSMB.ReceiptsSchedule) && tx.TxSMB.ReceiptsBeginDay.Equal(smbQuery.GLScheduleBeginDay) && tx.TxSMB.ReceiptsEndDay.Equal(smbQuery.GLScheduleEndDay)) {
+	if (tx.TxSMB.GLScheduleBeginDay.Equal(tx.TxSMB.ReceiptsSchedule) && tx.TxSMB.ReceiptsBeginDay.Equal(tx.TxSMB.GLScheduleBeginDay) && tx.TxSMB.ReceiptsEndDay.Equal(tx.TxSMB.GLScheduleEndDay)) {
 		fmt.Println("executing function core")	
 
 		tx.TxLoan.CumuAvgExpMonPayment = tx.TxLoan.CumuAvgExpMonPayment + tx.TxLoan.AvgExpMonPayment
