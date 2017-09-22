@@ -271,9 +271,9 @@ func (t *AuraBlock) updateCreditReceipts(stub shim.ChaincodeStubInterface, args 
 	fmt.Println("- starting updateCreditReceipts")
 
 	var smbQuery SMB
-    var lenderQuery Lender
-    var loanQuery Loan
-    var err error
+	var lenderQuery Lender
+	var loanQuery Loan
+	var err error
 
 	err = marshallRequest(args, &smbQuery, &lenderQuery, &loanQuery)
         if err != nil { return shim.Error("Failed to marshall request: " + err.Error())}
@@ -281,8 +281,8 @@ func (t *AuraBlock) updateCreditReceipts(stub shim.ChaincodeStubInterface, args 
 	key, err := stub.CreateCompositeKey("txKey", []string{smbQuery.FederalEIN, smbQuery.BusinessName, lenderQuery.FederalEIN, lenderQuery.LicenseNumber, loanQuery.LoanId, loanQuery.Type})
         if err != nil { return shim.Error(err.Error())}
 
-    txBytes, err  := stub.GetState(key)
-    if err != nil { return shim.Error(err.Error())}
+	txBytes, err  := stub.GetState(key)
+	if err != nil { return shim.Error(err.Error())}
 
 	tx := Transaction{}
 	err = json.Unmarshal(txBytes, &tx)
@@ -290,6 +290,7 @@ func (t *AuraBlock) updateCreditReceipts(stub shim.ChaincodeStubInterface, args 
 
 
 	tx.TxSMB.NetCreditReceipts = smbQuery.NetCreditReceipts
+	tx.TxSMB.CumuNetCreditReceipts = tx.TxSMB.CumuNetCreditReceipts + smbQuery.NetCreditReceipts
 	tx.TxSMB.ReceiptsSchedule = smbQuery.ReceiptsSchedule
 	tx.TxSMB.ReceiptsBeginDay = smbQuery.ReceiptsBeginDay
 	tx.TxSMB.ReceiptsEndDay = smbQuery.ReceiptsEndDay
