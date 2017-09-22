@@ -290,6 +290,7 @@ func (t *AuraBlock) updateCreditReceipts(stub shim.ChaincodeStubInterface, args 
 
 
 	tx.TxSMB.NetCreditReceipts = smbQuery.NetCreditReceipts
+	tx.TxSMB.CumuNetCreditReceipts = tx.TxSMB.CumuNetCreditReceipts + smbQuery.NetCreditReceipts
 	tx.TxSMB.ReceiptsSchedule = smbQuery.ReceiptsSchedule
 	tx.TxSMB.ReceiptsBeginDay = smbQuery.ReceiptsBeginDay
 	tx.TxSMB.ReceiptsEndDay = smbQuery.ReceiptsEndDay
@@ -360,7 +361,8 @@ func (t *AuraBlock) updateGeneralLedger(stub shim.ChaincodeStubInterface, args [
 // ===============
 
 func core(smbQuery *SMB, lenderQuery *Lender, loanQuery *Loan, tx *Transaction) {
-	if (smbQuery.GLScheduleBeginDay == tx.TxSMB.ReceiptsSchedule && tx.TxSMB.ReceiptsBeginDay == smbQuery.GLScheduleBeginDay && tx.TxSMB.ReceiptsEndDay == smbQuery.GLScheduleEndDay) {	
+	if (smbQuery.GLScheduleBeginDay.Equal(tx.TxSMB.ReceiptsSchedule) && tx.TxSMB.ReceiptsBeginDay.Equal(smbQuery.GLScheduleBeginDay) && tx.TxSMB.ReceiptsEndDay.Equal(smbQuery.GLScheduleEndDay)) {
+		fmt.Println("executing function core")	
 
 		tx.TxLoan.CumuAvgExpMonPayment = tx.TxLoan.CumuAvgExpMonPayment + tx.TxLoan.AvgExpMonPayment
 		tx.TxLoan.CCSplitPayment = tx.TxSMB.NetCreditReceipts * tx.TxLoan.CCSplitPercentage
