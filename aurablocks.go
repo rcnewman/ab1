@@ -360,7 +360,7 @@ func (t *AuraBlock) updateGeneralLedger(stub shim.ChaincodeStubInterface, args [
 // ===============
 
 func core(smbQuery *SMB, lenderQuery *Lender, loanQuery *Loan, tx *Transaction) {
-	if (smbQuery.GLScheduleBeginDay == tx.TxSMB.ReceiptsSchedule && tx.TxSMB.ReceiptsBeginDay == smbQuery.GLScheduleBeginDay && tx.TxSMB.ReceiptsEndDay = smbQuery.GLScheduleEndDay) {	
+	if (smbQuery.GLScheduleBeginDay == tx.TxSMB.ReceiptsSchedule && tx.TxSMB.ReceiptsBeginDay == smbQuery.GLScheduleBeginDay && tx.TxSMB.ReceiptsEndDay == smbQuery.GLScheduleEndDay) {	
 
 		tx.TxLoan.CumuAvgExpMonPayment = tx.TxLoan.CumuAvgExpMonPayment + tx.TxLoan.AvgExpMonPayment
 		tx.TxLoan.CCSplitPayment = tx.TxSMB.NetCreditReceipts * tx.TxLoan.CCSplitPercentage

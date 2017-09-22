@@ -35,7 +35,7 @@ Creates Loan
 	IN: account details
 	OUT: success/fail
 
-peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["onboardLoan","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\",\"smb_mailing_address\":\"Address 1\",\"smb_contact_name\":\"Bob Ross\",\"smb_email\":\"email@example.com\",\"smb_phone\":\"2345353\",\"smb_proj_avg_mon_revenue\":\"1200.02\",\"smb_proj_avg_mon_cc_receipts\":\"40949.32\"}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\",\"lender_business_name\":\"EGGGGZ\",\"lender_mailing_address\":\"This is a street\",\"lender_contact_name\":\"Jim\",\"lender_email\":\"jim@egggz.com\",\"lender_phone\":\"349494904\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\",\"loan_total_loaned_amount\":\"10.30\",\"loan_term\":\"An amount of itme\",\"loan_repayment_freq\":\"Whenever\",\"loan_cc_split\":\"10.00\",\"loan_cc_split_surcharge_percentage\":\"10.00\",\"loan_funded_date\":\"2015-09-15T12:00:00.000Z\",\"loan_termination_threshold\":\"1\"}"] }'
+peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["onboardLoan","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\",\"smb_mailing_address\":\"Address 1\",\"smb_contact_name\":\"Bob Ross\",\"smb_email\":\"email@example.com\",\"smb_phone\":\"2345353\",\"smb_proj_avg_mon_revenue\":\"33187.02\",\"smb_proj_avg_mon_cc_receipts\":\"86720.32\"}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\",\"lender_business_name\":\"EGGGGZ\",\"lender_mailing_address\":\"This is a street\",\"lender_contact_name\":\"Jim\",\"lender_email\":\"jim@egggz.com\",\"lender_phone\":\"349494904\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\",\"loan_total_loaned_amount\":\"10.30\",\"loan_term\":\"An amount of itme\",\"loan_repayment_freq\":\"12\",\"loan_cc_split_percentage\":\"12\",\"loan_cc_split_surcharge_percentage\":\"3\",\"loan_funded_date\":\"2016-12-15T12:00:00.000Z\",\"loan_termination_threshold\":\"3\"}"] }'
 
 API_CALL_Lender_Get_MCA_Smart_Contract
 Get Loan, for lenders
@@ -47,8 +47,9 @@ Get Loan, for lenders
 		loan_type
 
 	OUT: JSON (all loan details)
+peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["getLoanLender","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\"}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\"}"]}'
 
-peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["getLoanSMB","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\"}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\"}"]}'
+
 
 smb_federal_ein
 			smb_business_name
@@ -64,7 +65,8 @@ Get Loan, for SMB
 		loan_type
 	OUT: JSON (some loan details)
 
-peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["getLoanLender","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\"}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\"}"]}'
+peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["getLoanSMB","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\"}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\"}"]}'
+
 
 API_CALL_SMB_Post_GL_MCA_Smart_Contract
 Update general ledger for loan
@@ -75,12 +77,12 @@ Update general ledger for loan
 
 	OUT: Success/fail
 
-peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["updateGeneralLedger","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\",\"smb_mailing_address\":\"Address 1\",\"smb_contact_name\":\"Bob Ross\",\"smb_email\":\"email@example.com\",\"smb_phone\":\"2345353\",\"smb_proj_avg_mon_revenue\":\"1200.02\",\"smb_proj_avg_mon_cc_receipts\":\"40949.32\",\"smb_cash_flows_from_gl\":\"10.00\",\"smb_debt_to_equity_ratio\":\"10.00\",\"smb_working_capital\":\"10.00\",\"smb_currency\":\"10.00\",\"smb_gl_schedule\":\"2015-09-15T12:00:00.000Z\",\"smb_gl_schedule_begin_day\":\"2015-09-15T12:00:00.000Z\",\"smb_gl_schedule_end_day\":\"2015-09-16T12:00:00.000Z\",\"smb_approval_1_name\":\"Bob Ross\",\"smb_approval_1_role\":\"Boss\",\"smb_approval_1_email\":\"a@email.com\",\"smb_approval_2_name\":\"Bob Ross2\",\"smb_approval_2_role\":\"Boss\",\"smb_approval_2_email\":\"a@email.com\",\"smb_approval_3_name\":\"Bob Ross3\",\"smb_approval_3_role\":\"Boss\",\"smb_approval_3_email\":\"10.00\"}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\"}"]}'
+peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["updateGeneralLedger","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\",\"smb_mailing_address\":\"Address 1\",\"smb_contact_name\":\"Bob Ross\",\"smb_email\":\"email@example.com\",\"smb_phone\":\"2345353\",\"smb_proj_avg_mon_revenue\":\"33187.02\",\"smb_proj_avg_mon_cc_receipts\":\"28670.32\",\"smb_cash_flows_from_gl\":\"30000\",\"smb_debt_to_equity_ratio\":\"0.8\",\"smb_working_capital\":\"50000\",\"smb_currency\":\"10.00\",\"smb_gl_schedule\":\"2017-01-01T12:00:00.000Z\",\"smb_gl_schedule_begin_day\":\"2017-01-01T12:00:00.000Z\",\"smb_gl_schedule_end_day\":\"2017-01-31T12:00:00.000Z\",\"smb_approval_1_name\":\"Bob Ross\",\"smb_approval_1_role\":\"Boss\",\"smb_approval_1_email\":\"a@email.com\",\"smb_approval_2_name\":\"Bob Ross2\",\"smb_approval_2_role\":\"Boss\",\"smb_approval_2_email\":\"a@email.com\",\"smb_approval_3_name\":\"Bob Ross3\",\"smb_approval_3_role\":\"Boss\",\"smb_approval_3_email\":\"10.00\"}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\"}"]}'
 
 API_CALL_Lender_Post_Credit_Receipts_MCA_Smart_Contract
 Update credit receipts for loan
 
 
-peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["updateCreditReceipts","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\",\"smb_net_credit_receipts\":\"15000.00\",\"smb_receipts_schedule\":\"2015-09-15T12:00:00.000Z\",\"smb_receipts_begin_day\":\"2015-09-15T12:00:00.000Z\",\"smb_receipts_end_day\":\"2015-09-15T12:00:00.000Z\"}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\"}"]}'
+peer chaincode invoke -n aura -C myc -v 0 -c '{"Args":["updateCreditReceipts","{\"smb_federal_ein\":\"12345-10\",\"smb_business_name\":\"Business A\",\"smb_net_credit_receipts\":\"29930.00\",\"smb_receipts_schedule\":\"2017-01-01T12:00:00.000Z\",\"smb_receipts_begin_day\":\"2017-01-01T12:00:00.000Z\",\"smb_receipts_end_day\":\"2017-01-31T12:00:00.000Z\"}","{\"lender_federal_ein\":\"4865854-10\",\"lender_license_number\":\"4848-0912\"}","{\"loan_id\":\"11111\",\"loan_type\":\"Big one\"}"]}'
 
 
