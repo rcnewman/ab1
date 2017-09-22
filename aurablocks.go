@@ -366,7 +366,7 @@ func core(smbQuery *SMB, lenderQuery *Lender, loanQuery *Loan, tx *Transaction) 
 
 		tx.TxLoan.CumuAvgExpMonPayment = tx.TxLoan.CumuAvgExpMonPayment + tx.TxLoan.AvgExpMonPayment
 		tx.TxLoan.CCSplitPayment = tx.TxSMB.NetCreditReceipts * tx.TxLoan.CCSplitPercentage
-		tx.TxSMB.CumuCashFlows = tx.TxSMB.CumuCashFlows + smbQuery.CashFlows
+		tx.TxSMB.CumuCashFlows = tx.TxSMB.CumuCashFlows + tx.TxSMB.CashFlows
 
 		tx.TxLoan.CumuCCSplitPayment = tx.TxLoan.CumuCCSplitPayment + tx.TxLoan.CCSplitPayment
 		tx.TxLoan.ActualPayment = tx.TxLoan.CCSplitPayment
