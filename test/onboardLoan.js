@@ -1,23 +1,13 @@
 var rp = require('request-promise');
 
-// In the URL, `mca` is the name of the chaincode, and `smbblockorderer` is the name of the channel
-var url = "http://129.158.70.201:8889/api/v1/chaincodes/mca/channels/smbblockorderer/invoke";
+var url = "http://129.158.64.209:8901/bcsgw/rest/v1/transaction/invocation"
 var body = {
-    "request": {
-        chaincodeVersion: "v1",
-        fcn: "onboardLoan",
-        args: []
-    },
-	orderer: {
-		Addr: "orderer.smbblock.com",
-		Port: "7050"
-	},
-	"peers": [
-		{"Addr":"peer0.smbblock.com","Port":"7051"},
-		{"Addr":"peer1.smbblock.com","Port":"7051"}
-	]
+	"channel": "test",
+	"chaincode": "loan",
+	"chaincodeVer": "v1",
+	"method": "onboardLoan",
+	"args": []
 }
-
 var smb = {
 	"smb_federal_ein": "12345-10",
 	"smb_business_name": "Business A",
@@ -25,8 +15,8 @@ var smb = {
 	"smb_contact_name": "Bob Ross",
 	"smb_email": "email@example.com",
 	"smb_phone": "2345353",
-	"smb_proj_avg_mon_revenue": 1200.02,
-	"smb_proj_avg_mon_cc_receipts": 40949.32
+	"smb_proj_avg_mon_revenue": "1200.02",
+	"smb_proj_avg_mon_cc_receipts": "40949.32"
 }
 var lender = {
 	"lender_federal_ein": "4865854-10",
@@ -49,7 +39,7 @@ var loan = {
 	"loan_termination_threshold": "1"
 }
 
-body.request.args = [JSON.stringify(smb), JSON.stringify(lender), JSON.stringify(loan)];
+body.args = [JSON.stringify(smb), JSON.stringify(lender), JSON.stringify(loan)]
 var options = {
     method: 'POST',
     uri: url,
