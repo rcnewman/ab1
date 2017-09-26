@@ -66,7 +66,7 @@ function processRow (row) {
 
     var body = {
         "channel": "test",
-        "chaincode": "loan",
+        "chaincode": "loangtmv2",
         "chaincodeVer": "v1",
         "method": bcs_functions[row.api],
         "args": [JSON.stringify(smb), JSON.stringify(lender), JSON.stringify(loan)]
