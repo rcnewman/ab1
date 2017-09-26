@@ -114,6 +114,17 @@ function logLoanData(tx) {
     var data = Object.assign({}, tx.TxSMB, tx.TxLender, tx.TxLoan);
     var keys = Object.keys(data);
     var rowData = keys.map(key => data[key])
+
+    // fix everything to 2 decimal places
+    rowData.forEach((value, i) => {
+        var fixed = Number(value);
+        if (!Number.isNaN(fixed)) {
+            fixed = fixed.toFixed(2);
+            rowData[i] = fixed;
+        }
+    });
+            
+            
     var row = rowData.join(',') + '\n';
     if (fs.existsSync('loaninfo.csv'))
         fs.appendFileSync('loaninfo.csv', row);
