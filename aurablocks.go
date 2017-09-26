@@ -373,6 +373,7 @@ func core(smbQuery *SMB, lenderQuery *Lender, loanQuery *Loan, tx *Transaction) 
 		tx.TxLoan.CumuActualPayment = tx.TxLoan.CumuActualPayment + tx.TxLoan.CCSplitPayment
 
 		tx.TxLoan.LoanPerformance = "Good"
+		tx.TxLoan.SplitPercentageCurMonPayment = tx.TxLoan.CCSplitPercentage
 		tx.TxLoan.OnTrackPaymentCount = tx.TxLoan.OnTrackPaymentCount + 1
 		if (tx.TxSMB.CumuCashFlows != 0) {
 			tx.TxLoan.CumuRepaymentPercentage = (tx.TxLoan.CumuActualPayment / tx.TxSMB.CumuCashFlows) * 100
